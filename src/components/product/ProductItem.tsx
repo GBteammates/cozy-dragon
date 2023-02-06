@@ -1,27 +1,32 @@
 import {Box, Flex, Image, Stack, Text} from '@chakra-ui/react';
-import {FC} from "react";
+import {FC, useState} from "react";
 import {Link} from 'react-router-dom';
-import {isAdmin} from '../../constants/isAdmin';
 import {useCart} from "../../context/CartContext";
 import {IProduct} from '../../models/IProduct';
 import {toCurrency} from "../../utilities/formatCurrency";
 import Counter from "../../UI/Counter";
-import {FavouriteSwitcher} from "../../UI/FavouriteSwitcher";
+import {FavoriteSwitcher} from "../../UI/FavoriteSwitcher";
+import {useCustomer} from "../../context/CustomerContext";
+import {slashEscape} from "../../utilities/RegExpURL";
 
 interface ProductItemProps {
     product: IProduct
 }
 
-export const isFav = false;
-
 export const ProductItem: FC<ProductItemProps> = ({product}) => {
-    const {id, images, price, title} = product;
+    const {id, image, price, title} = product;
+    const [isFav, setIsFav] = useState(product?.isFavourite);
+    const {isAdmin, isAuth, customer} = useCustomer();
     const {getItemQuantity} = useCart();
-    const quantity = getItemQuantity(id);
+
+    const handleSetIsFav = (value: boolean) => {
+        setIsFav(value);
+    }
 
     return (
         <Flex
             maxW='300px'
+            minW='260px'
             overflow='hidden'
             bg='gray.100'
             border='1px solid'
@@ -34,22 +39,24 @@ export const ProductItem: FC<ProductItemProps> = ({product}) => {
             justifyContent='space-between'
             position='relative'
         >
-            <Box position='absolute'
-                 right={2}
-                 top={2}>
-                <FavouriteSwitcher isFav={isFav}/>
-            </Box>
+            {isAuth && <Box position='absolute'
+                            right={2}
+                            top={2}>
+                <FavoriteSwitcher isFav={isFav} customerId={customer.id} productId={id} handleSetIsFav={handleSetIsFav}/>
+            </Box>}
             <Box py={4}>
                 <Link
-                    to={isAdmin ? `/edit/${id}/${title}` : `/${product.category?.name?.toLowerCase()}/${product.id}/${product.title}`}>
+                    to={isAdmin
+                        ? `/edit/${id}`
+                        : `/${slashEscape(product.category?.name)?.toLowerCase()}/${product.id}`}>
                     <Flex height='250px' width='100%' justifyContent='center'>
-                        <Image
+                        {image && <Image
                             maxH='100%'
                             maxW='100%'
                             objectFit={'contain'}
-                            src={images[0]}
+                            src={image[0]}
                             fallbackSrc={'/imgs/placeholder-image.jpg'}
-                        />
+                        />}
                     </Flex>
                     <Stack height='130px' alignItems='start' justifyContent='center' px={4}>
                         <Text fontWeight={700} fontSize={'xl'}>
@@ -61,7 +68,7 @@ export const ProductItem: FC<ProductItemProps> = ({product}) => {
                     </Stack>
                 </Link>
                 <Box px={4}>
-                    <Counter product={product} quantity={quantity}/>
+                    <Counter product={product} quantity={getItemQuantity(id)}/>
                 </Box>
             </Box>
         </Flex>

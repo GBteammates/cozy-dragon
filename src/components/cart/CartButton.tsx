@@ -5,13 +5,13 @@ import {BsBagFill} from "react-icons/bs";
 import {toCurrency} from "../../utilities/formatCurrency";
 
 const CartButton = () => {
-    const {cartItems, getTotalCost} = useCart();
+    const {cart, getTotalCost} = useCart();
     return (
         <>
-            {cartItems.length > 0 ?
+            {cart?.items?.length > 0 ?
                 <Button leftIcon={<BsBagFill fontSize='x-large'/>} colorScheme='yellow' variant='solid'
                         fontSize='large'>
-                    <Text as='span' pt={1} fontWeight='normal'>{toCurrency(getTotalCost())}</Text>
+                    <Text as='span' pt={1} fontWeight='normal'>{toCurrency(getTotalCost(cart?.items))}</Text>
                 </Button>
                 :
                 <IconButton

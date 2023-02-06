@@ -1,5 +1,5 @@
 import React from 'react';
-import {Button, HStack, Image, Text, VStack} from "@chakra-ui/react";
+import {Box, Button, Image, Text} from "@chakra-ui/react";
 
 interface AuthSocialButtonsProps {
     signInHandler: (source: string) => void
@@ -7,19 +7,13 @@ interface AuthSocialButtonsProps {
 
 const AuthSocialButtons = ({signInHandler}: AuthSocialButtonsProps) => {
     return (
-        <VStack spacing={3}>
-            <Text>Войти с помощью</Text>
-            <HStack justifyContent='center' spacing={3}>
-                <Button size='lg' variant='outline' borderRadius='50%' p={0}
-                        onClick={() => signInHandler('google')}>
-                    <Image h={7} src={'/imgs/google-logo.svg'} alt='Google Icon'/>
-                </Button>
-                <Button size='lg' variant='outline' borderRadius='50%' p={0}
-                        onClick={() => signInHandler('yandex')}>
-                    <Image h={8} src={'/imgs/ya-logo.svg'} alt='Yandex Icon'/>
-                </Button>
-            </HStack>
-        </VStack>
+        <Box textAlign='center'>
+            <Text mb={3}>Войти с помощью</Text>
+            <Button size='lg' variant='outline' borderRadius='50%' p={0}
+                    onClick={() => signInHandler('google')}>
+                <Image h={7} src={'/imgs/google-logo.svg'} alt='Google Icon'/>
+            </Button>
+        </Box>
     );
 };
 

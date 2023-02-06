@@ -1,0 +1,22 @@
+version: "3.9"
+services:
+  redis:
+    image: "redis:alpine"
+    ports:
+      - "6379:6379"
+
+  db:
+    image: postgres:alpine
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_DB: shop
+      POSTGRES_USER: shopteam
+      POSTGRES_PASSWORD: 123
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080

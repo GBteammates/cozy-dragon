@@ -1,10 +1,12 @@
 import {ICategory} from "./ICategory";
 
 export type IProduct = {
-    id: number,
+    id: string,
     title: string,
     price: number,
     category: ICategory,
     description: string,
-    images: string[]
+    image: string[],
+    vendor: string,
+    isFavourite: boolean
 }

@@ -6,6 +6,7 @@ import {App} from "./App"
 import './global.css';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import 'moment/locale/ru';
 
 const rootElement = document.getElementById('root');
 const root = ReactDOM.createRoot(rootElement as Element);

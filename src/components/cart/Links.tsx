@@ -10,8 +10,8 @@ export const Links = [
         path: 'cart'
     },
     {
-        title: 'Favorite',
+        title: 'Favorites',
         icon: <IconButton aria-label='Избранное' fontSize='x-large' icon={<MdFavorite/>}/>,
-        path: 'favourites'
+        path: 'favorites'
     }
 ];

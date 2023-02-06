@@ -1,9 +1,9 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
-    Avatar,
     Button,
     Flex,
     HStack,
+    IconButton,
     Menu,
     MenuButton,
     MenuDivider,
@@ -12,82 +12,116 @@ import {
     Text,
     useDisclosure,
 } from '@chakra-ui/react';
-import {Link} from 'react-router-dom';
+import {Link, useNavigate} from 'react-router-dom';
 import {useCategory} from "../context/CategoryContext";
 import {ICategory} from '../models/ICategory';
 import axios from "axios";
-import {ToastError, ToastInfo, ToastSuccess} from "../utilities/error-handling";
+import {ToastError, ToastSuccess} from "../utilities/error-handling";
 import SignIn from '../modals/SignIn';
 import SignUp from "../modals/SignUp";
 import {ICustomer} from "../models/ICustomer";
 import {Links} from './cart/Links';
-import {isAdmin} from '../constants/isAdmin';
 import {rootURL} from '../constants/URLs';
 import EditProfileModal from '../modals/EditProfileModal';
-import {getToken, removeToken, setToken} from "../utilities/local-storage-handling";
+import LogOut from '../modals/LogOut';
+
+import {
+    getCartId,
+    getToken,
+    removeCartId,
+    removeToken,
+    removeUserId,
+    setCartId,
+    setToken,
+    setUserId
+} from "../utilities/local-storage-handling";
 import {useCustomer} from "../context/CustomerContext";
 import {useCart} from "../context/CartContext";
+import SettingsModal from "../modals/SettingsModal";
+import {IRole} from "../models/IRole";
+import {BsFillPersonFill} from 'react-icons/bs';
+import {getHeaderConfig} from "../utilities/getHeaderConfig";
+import OrderService from "../api/OrderService";
 
 export const Header = () => {
     const [isLoading, setIsLoading] = useState(false);
-    const [isAuth, setIsAuth] = useState(!!getToken());
+    const [roles, setRoles] = useState<IRole[]>([]);
     const signInDisclosure = useDisclosure();
     const signUpDisclosure = useDisclosure();
+    const logOutDisclosure = useDisclosure();
     const editProfileDisclosure = useDisclosure();
-    const {emptyCart} = useCart();
+    const settingsDisclosure = useDisclosure();
+    const {onFetchCart, onEmptyCartContext} = useCart();
     const {onChangeCurrentCategory} = useCategory();
-    const {customer, onChangeCustomer} = useCustomer();
+    const {customer, onChangeCustomer, onChangeAdmin, isAdmin, isAuth, onChangeAuth} = useCustomer();
+    const navigate = useNavigate();
 
     useEffect(() => {
+        const cartId = getCartId();
         if (isAuth) {
             getUserWithSession();
+            if (cartId) {
+                onFetchCart(cartId);
+            }
+        } else {
+            navigate('');
         }
     }, [])
 
     const signInBySocial = async (source: string) => {
-        ToastInfo('not implemented');
-        // await axios.get(
-        //     `/user/login/${source}`
-        // )
-        //     .then(({data}) => {
-        //         ToastSuccess('Вы успешно авторизовались');
-        //         setIsAuth(true);
-        //     })
-        //     .catch(error => {
-        //         ToastError(error.message);
-        //     })
-        //     .finally(() => {
-        //         signInDisclosure.onClose();
-        //     })
-    }
-
-    const signInByEmail = async ({email, password}: ICustomer) => {
-        setIsLoading(true);
-        await axios.post(
-            `${rootURL}/auth/login`, {
-                email, password
-            }
+        await axios.get(
+            `${rootURL}/user/login/${source}`
         )
             .then(({data}) => {
                 ToastSuccess('Вы успешно авторизовались');
-                setIsAuth(true);
-                setToken(data.access_token);
+                setToken(data.token.access_token);
+                onFetchCart(data.cartId);
+                setCartId(data.cartId);
+                onChangeAuth(true);
             })
             .catch(error => {
                 ToastError(error.message);
             })
             .finally(() => {
                 signInDisclosure.onClose();
-                getUserWithSession();
             })
     }
-    const signUpHandler = async (data: ICustomer) => {
+
+    const signInByEmail = async ({firstname, email, password}: Partial<ICustomer>) => {
         setIsLoading(true);
         await axios.post(
-            `${rootURL}/users/`, data
+            `${rootURL}/user/login`, {
+                firstname, email, password
+            }
+        )
+            .then(({data}) => {
+                ToastSuccess('Вы успешно авторизовались');
+                setToken(data.token.access_token);
+                onFetchCart(data.cartId);
+                setCartId(data.cartId);
+                onChangeAuth(true);
+                getUserWithSession();
+            })
+            .catch(error => {
+                if (error.response.data?.message?.includes('incorrect email or password')) {
+                    ToastError('Неверный логин или пароль');
+                } else {
+                    ToastError('Сервис временно недоступен');
+                }
+            })
+            .finally(() => {
+                signInDisclosure.onClose();
+            })
+    }
+
+    const signUpHandler = async ({firstname, email, password}: Partial<ICustomer>) => {
+        await axios.post(
+            `${rootURL}/user/create`, {
+                firstname, email, password
+            }
         )
             .then(() => {
-                ToastSuccess('Вы успешно зарегистрировались и можете авторизоваться');
+                ToastSuccess('Вы успешно зарегистрировались');
             })
             .catch(error => {
                 ToastError(error.message);
@@ -97,38 +131,59 @@ export const Header = () => {
                 signUpDisclosure.onClose();
             })
     }
-
-    const logOutHandler = () => {
-        removeToken();
-        onChangeCustomer({});
-        emptyCart();
-        setIsAuth(false);
+    const logOutHandler = async () => {
+        await axios.get(
+            `${rootURL}/user/logout?id=${customer.id}`,
+        )
+            .then(() => {
+                onChangeCustomer({} as ICustomer);
+                onChangeAuth(false);
+                onChangeAdmin(false);
+                onEmptyCartContext();
+                removeCartId();
+                removeToken();
+                removeUserId();
+                navigate('');
+                ToastSuccess('Вы вышли из аккаунта');
+            })
+            .catch(error => {
+                ToastError('Сервис временно недоступен');
+            })
+            .finally(() => {
+                logOutDisclosure.onClose();
+            })
     }
 
     const getUserWithSession = async () => {
-        const config = {
-            headers: { Authorization: `Bearer ${getToken()}` }
-        };
-      await axios.get(`${rootURL}/auth/profile`, config)
-          .then(({data}) => {
-              onChangeCustomer(data);
-          })
-          .catch(error => {
-              ToastError(error.message);
-              removeToken();
-              setIsAuth(false);
-          })
-          .finally(() => {
-              setIsLoading(false);
-          })
+        const config = getHeaderConfig();
+        await axios.get(`${rootURL}/user/profile`, config)
+            .then(({data}) => {
+                onChangeCustomer(data);
+                setUserId(data.id);
+                if (data.rights?.name?.toLowerCase() === 'admin') {
+                    onChangeAdmin(true);
+                }
+                onChangeAuth(true);
+            })
+            .catch(error => {
+                ToastError('Сервис временно недоступен');
+                removeToken();
+                removeUserId();
+                onChangeAuth(false);
+            })
+            .finally(() => {
+                setIsLoading(false);
+            })
     }
 
     const onEditProfile = async (values: ICustomer) => {
+        const config = getHeaderConfig();
         await axios.put(
-            `${rootURL}/users/${customer.id}`, values
+            `${rootURL}/user/profile/edit`, values, config
         )
             .then(({data}) => {
                 onChangeCustomer(data);
+                setUserId(data.id);
                 ToastSuccess('Ваши данные были успешно изменены');
             })
             .catch(error => {
@@ -137,6 +192,43 @@ export const Header = () => {
             .finally(() => {
                 editProfileDisclosure.onClose();
             })
+    }
+
+    const onOpenSettingsModal = async () => {
+        const config = getHeaderConfig();
+        await axios.get(
+            `${rootURL}/user/rights/list`, config
+        ).then(({data}) => {
+            setRoles(data);
+            settingsDisclosure.onOpen();
+        })
+    }
+
+    const onEditUserRole = async (values: any) => {
+        const config = getHeaderConfig();
+        await axios.put(
+            `${rootURL}/user/role/update`, values, config
+        )
+            .then(() => {
+                ToastSuccess('Роль пользователя была успешно изменена');
+            })
+            .catch(error => {
+                ToastError(error.message);
+            })
+            .finally(() => {
+                settingsDisclosure.onClose();
+            })
+    }
+
+    const onEditOrderStatus = async (values: any) => {
+        try {
+            const config = getHeaderConfig();
+            await OrderService.changeOrderStatus(values, config);
+            ToastSuccess('Статус заказа был изменен');
+            settingsDisclosure.onClose();
+        } catch (e: any) {
+            ToastError(e?.message);
+        }
     }
 
     return (
@@ -152,14 +244,14 @@ export const Header = () => {
               justifyContent='space-between'
               zIndex={100}
         >
-            <Link to='/all' onClick={() => onChangeCurrentCategory({} as ICategory)}>
+            <Link to='' onClick={() => onChangeCurrentCategory({} as ICategory)}>
                 <Flex alignItems='center' color='gray.500' textTransform={"uppercase"} ml={4}>
                     <svg width="52" height="52"
                          xmlns="http://www.w3.org/2000/svg">
-                        <image href="/imgs/logo.svg" height="52" width="52"/>
+                        <image href="/imgs/logo.png" height="52" width="52"/>
                     </svg>
-                    <Text ml={2} as='h1' fontSize='4xl' fontWeight='thin' textTransform='lowercase'>
-                        store
+                    <Text ml={2} as='h1' fontSize='3xl' fontWeight='thin' textTransform='lowercase'>
+                        Cozy Dragon
                     </Text>
                 </Flex>
             </Link>
@@ -173,8 +265,11 @@ export const Header = () => {
                     <HStack
                         as={'nav'}
                         spacing={2}
-                        marginX={6}
+                        mx={2}
                         fontSize='25px'>
+                        {isAdmin && <Text ml={2} fontSize='2xl' fontWeight='thin' color='gray'>
+                            Панель администратора
+                        </Text>}
                         {!isAdmin && Links.map(({title, icon, path}) => (
                             <Link to={path} key={title}>
                                 {icon}
@@ -183,25 +278,19 @@ export const Header = () => {
                     </HStack>
                     <Menu>
                         <MenuButton
-                            as={Button}
-                            rounded={'full'}
-                            variant={'link'}
-                            cursor={'pointer'}
-                            minW={0}>
-                            <Avatar
-                                size={'md'}
-                                src={customer?.avatar}
-                                border='1px solid'
-                                borderColor='gray.400'
-                            />
-                        </MenuButton>
+                            as={IconButton}
+                            aria-label='Профиль'
+                            icon={<BsFillPersonFill fontSize='xx-large'/>}
+                        />
                         <MenuList>
-                            <MenuItem onClick={editProfileDisclosure.onOpen} >Профиль</MenuItem>
+                            <MenuItem onClick={editProfileDisclosure.onOpen}>Профиль</MenuItem>
+                            {isAdmin && <MenuItem onClick={onOpenSettingsModal}>Настройки</MenuItem>}
                             {!isAdmin &&
                                 <Link to={'/orders'}>
                                     <MenuItem>Мои заказы</MenuItem>
                                 </Link>
-                            }                            <MenuDivider/>
+                            }
+                            <MenuDivider/>
                             <MenuItem onClick={() => logOutHandler()}>Выйти</MenuItem>
                         </MenuList>
                     </Menu>
@@ -212,18 +301,24 @@ export const Header = () => {
                               isOpen={editProfileDisclosure.isOpen}
                               onClose={editProfileDisclosure.onClose}
                               onEditProfile={onEditProfile}/>
+            <SettingsModal roles={roles}
+                           isOpen={settingsDisclosure.isOpen}
+                           onClose={settingsDisclosure.onClose}
+                           onEditUserRole={onEditUserRole}
+                           onEditOrderStatus={onEditOrderStatus}/>
 
             <SignIn isOpen={signInDisclosure.isOpen}
-                    isLoading={isLoading}
                     onClose={signInDisclosure.onClose}
                     onOpenSignUp={signUpDisclosure.onOpen}
                     signInHandler={signInBySocial}
                     signInByEmail={signInByEmail}/>
             <SignUp isOpen={signUpDisclosure.isOpen}
-                    isLoading={isLoading}
                     onClose={signUpDisclosure.onClose}
                     onOpenSignIn={signInDisclosure.onOpen}
                     signUpHandler={signUpHandler}/>
+            <LogOut isOpen={logOutDisclosure.isOpen}
+                    onClose={logOutDisclosure.onClose}
+                    logOutHandler={logOutHandler}/>
         </Flex>
     );
 }

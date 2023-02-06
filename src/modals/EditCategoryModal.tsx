@@ -27,7 +27,7 @@ interface EditCategoryModalProps {
 
 type Values = {
     name: string;
-    image: string;
+    description: string;
 };
 
 const EditCategoryModal = ({
@@ -37,13 +37,11 @@ const EditCategoryModal = ({
                                onEditCategory
                            }: EditCategoryModalProps) => {
 
-    const URL = /^((https?|ftp):\/\/)?(www.)?(((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:)*@)?(((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?)(:\d*)?)(\/((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)+(\/(([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)*)*)?)?(\?((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|[\uE000-\uF8FF]|\/|\?)*)?(\#((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|\/|\?)*)?$/i;
     const ValidationSchema = Yup.object().shape({
         name: Yup.string()
             .required('Пожалуйста, введите название категории'),
-        image: Yup.string()
-            .matches(URL, 'Пожалуйста, введите корректный URL')
-            .required('Пожалуйста, добавьте изображение категории')
+        description: Yup.string()
+            .required('Пожалуйста, добавьте описание категории')
     });
 
     return (
@@ -55,10 +53,10 @@ const EditCategoryModal = ({
                 <ModalCloseButton/>
 
                 <Formik
-                    initialValues={{name: category.name, image: category.image}}
+                    initialValues={{name: category.name, description: category.description}}
                     validationSchema={ValidationSchema}
                     onSubmit={async (values: Values) => {
-                        onEditCategory({...category, name: values.name, image: values.image})
+                        onEditCategory({...category, name: values.name, description: values.description})
                     }}
                 >
                     {({isValid, dirty}) => (
@@ -79,11 +77,11 @@ const EditCategoryModal = ({
                                         </Field>
                                     </FormControl>
                                     <FormControl>
-                                        <FormLabel htmlFor='image' fontWeight='bold'>Изображение категории</FormLabel>
-                                        <Field name="image">
+                                        <FormLabel htmlFor='description' fontWeight='bold'>Описание категории</FormLabel>
+                                        <Field name="description">
                                             {({field, meta}: any) => (
                                                 <>
-                                                    <Input name='image' type='string' {...field}/>
+                                                    <Input name='description' type='string' {...field}/>
                                                     {meta.touched && meta.error && (
                                                         <Text color='red.400' fontSize='sm' mt={2}>{meta.error}</Text>
                                                     )}

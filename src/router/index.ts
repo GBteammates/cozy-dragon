@@ -3,13 +3,14 @@ import * as pages from '../pages/index'
 
 export enum RouteNames {
     HOME = '/',
-    EDIT_PRODUCT = '/edit/:productId/:productTitle',
+    EDIT_PRODUCT = '/edit/:productId',
     ALL_PRODUCTS = '/all',
     CATEGORY = '/:currentCategory',
-    PRODUCT = '/:category/:productId/:productTitle',
-    FAVOURITES = '/favourites',
+    PRODUCT = '/:categoryName/:productId',
+    FAVOURITES = '/favorites',
     CART = '/cart',
     ORDERS = '/orders',
+    ORDER = '/order/:orderId',
 }
 
 export const routes: IRoute[] = [
@@ -17,7 +18,8 @@ export const routes: IRoute[] = [
     { path: RouteNames.ALL_PRODUCTS, component: pages.Home },
     { path: RouteNames.CATEGORY, component: pages.Home },
     { path: RouteNames.PRODUCT, component: pages.Product },
-    { path: RouteNames.FAVOURITES, component: pages.Favourites },
+    { path: RouteNames.FAVOURITES, component: pages.Favorites },
     { path: RouteNames.CART, component: pages.Cart },
-    { path: RouteNames.ORDERS, component: pages.Orders }
+    { path: RouteNames.ORDERS, component: pages.OrderList },
+    { path: RouteNames.ORDER, component: pages.Order }
 ]

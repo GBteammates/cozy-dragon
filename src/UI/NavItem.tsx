@@ -8,7 +8,7 @@ interface NavItemProps extends FlexProps {
 
 export const NavItem = ({children, ...rest}: NavItemProps) => {
     return (
-        <Link to={`/${children.toLowerCase()}`} style={{textDecoration: 'none', flex: 1}}>
+        <Link to={`/${children?.toLowerCase()}`} style={{textDecoration: 'none', flex: 1}}>
             <Flex
                 align='center'
                 p={4}

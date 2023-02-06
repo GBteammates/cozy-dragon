@@ -25,7 +25,7 @@ const Carousel = ({images}: CarouselProps) => {
     return (
         <Box
             position='relative'
-            height='600px'
+            height='auto'
             width='full'
             overflow='hidden'>
             <IconButton
@@ -37,7 +37,7 @@ const Carousel = ({images}: CarouselProps) => {
                 position="absolute"
                 size='lg'
                 left='10px'
-                top='40%'
+                top='50%'
                 transform={'translate(0%, -50%)'}
                 zIndex={2}
                 hidden={images.length <=1}
@@ -53,7 +53,7 @@ const Carousel = ({images}: CarouselProps) => {
                 position="absolute"
                 size='lg'
                 right='10px'
-                top='40%'
+                top='50%'
                 transform={'translate(0%, -50%)'}
                 zIndex={2}
                 hidden={images.length <=1}
@@ -66,7 +66,7 @@ const Carousel = ({images}: CarouselProps) => {
                         key={index}
                         maxH='500px'
                         maxW='100%'
-                        minH='500px'
+                        minH='auto'
                         minW='500px'
                         objectFit={'contain'}
                         src={url}

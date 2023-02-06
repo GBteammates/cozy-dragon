@@ -5,16 +5,15 @@ import * as Yup from "yup";
 import {ICustomer} from "../../models/ICustomer";
 
 interface SignInByEmailFormProps {
-    signInByEmail: (data: ICustomer) => void,
-    isLoading: boolean
+    signInByEmail: (data: Partial<ICustomer>) => void,
 }
 
-export interface Values {
+export interface SignInByEmailFormValues {
     email: string;
     password: string;
 }
 
-const SignInByEmailForm = ({signInByEmail, isLoading}: SignInByEmailFormProps) => {
+const SignInByEmailForm = ({signInByEmail}: SignInByEmailFormProps) => {
     const ValidationSchema = Yup.object().shape({
         email: Yup.string()
             .email('Пожалуйста, введите корректный  email')
@@ -33,14 +32,14 @@ const SignInByEmailForm = ({signInByEmail, isLoading}: SignInByEmailFormProps) =
             }}
             validationSchema={ValidationSchema}
             onSubmit={async (
-                values: Values,
-                {setSubmitting}: FormikHelpers<Values>
+                values: SignInByEmailFormValues,
+                {setSubmitting}: FormikHelpers<SignInByEmailFormValues>
             ) => {
                 signInByEmail(values)
                 setSubmitting(false);
             }}
         >
-            {({isValid, dirty}) => (
+            {({isValid, dirty, isSubmitting}) => (
                 <Form>
                     <Stack spacing={4} textAlign='left'>
                         <FormControl>
@@ -75,7 +74,7 @@ const SignInByEmailForm = ({signInByEmail, isLoading}: SignInByEmailFormProps) =
                         </FormControl>
                         <Button type='submit'
                                 colorScheme='yellow'
-                                isLoading={isLoading}
+                                isLoading={isSubmitting}
                                 isDisabled={!isValid || !dirty}>
                             Войти
                         </Button>

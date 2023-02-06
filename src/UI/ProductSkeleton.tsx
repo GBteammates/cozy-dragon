@@ -8,7 +8,8 @@ const ProductSkeleton = () => {
             rounded='2xl'
             padding='4'
             maxW='300px'
-            minWidth='220px'
+            w='100%'
+            minWidth='250px'
             height='475px'
             flexDirection='column'
         >

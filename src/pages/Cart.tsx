@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {useCart} from "../context/CartContext";
 import {
     Box,
@@ -11,53 +11,49 @@ import {
     List,
     ListItem,
     Spacer,
-    Table,
-    TableContainer,
-    Tbody,
-    Td,
-    Text,
-    Tfoot,
-    Th,
-    Tr
+    Text
 } from "@chakra-ui/react";
 import {toCurrency} from "../utilities/formatCurrency";
-import {Link} from 'react-router-dom';
+import {Link, useNavigate} from 'react-router-dom';
 import {BsBag} from 'react-icons/bs';
 import Counter from "../UI/Counter";
 import {useCategory} from '../context/CategoryContext';
 import MainBlockLayout from '../UI/MainBlockLayout';
 import {OrderForm} from '../components/cart/OrderForm';
+import {slashEscape} from "../utilities/RegExpURL";
+import {IOrder} from "../models/IOrder";
+import {getHeaderConfig} from "../utilities/getHeaderConfig";
+import {getCartId, setCartId} from "../utilities/local-storage-handling";
+import {ToastError, ToastSuccess} from "../utilities/error-handling";
+import OrderService from "../api/OrderService";
+import TotalCostTable from '../UI/TotalCostTable';
+import Loader from "../UI/Loader";
 
 export const Cart = () => {
-    const {cartItems, getTotalCost, getGoodsCost, getDeliveryCost, getTotalQuantity} = useCart();
+    const {cart, getTotalQuantity, onEmptyCartContext, onFetchCart, isLoadingCart} = useCart();
     const {currentCategory} = useCategory();
+    const navigate = useNavigate();
 
-    const TotalCostTable = () => (
-        <TableContainer mx={-5} mt={2} mb={4}>
-            <Table variant='unstyled'>
-                <Tbody borderTop='1px solid' borderColor='gray.200'>
-                    <Tr>
-                        <Td>Товары</Td>
-                        <Td fontWeight='bold'>
-                            {toCurrency(getGoodsCost())}
-                        </Td>
-                    </Tr>
-                    <Tr>
-                        <Td>Доставка</Td>
-                        <Td fontWeight='bold'>{toCurrency(getDeliveryCost())}</Td>
-                    </Tr>
-                </Tbody>
-                <Tfoot>
-                    <Tr borderTop='1px solid' borderColor='gray.200'>
-                        <Th fontSize='large' fontWeight='bold'>К оплате</Th>
-                        <Th isNumeric fontSize='large' fontWeight='bold'>
-                            {toCurrency(getTotalCost())}
-                        </Th>
-                    </Tr>
-                </Tfoot>
-            </Table>
-        </TableContainer>
-    );
+    useEffect(() => {
+        const cartId = getCartId();
+        if (cartId) {
+            onFetchCart(cartId);
+        }
+    }, []);
+
+    const handleFormSubmit = async (order: IOrder) => {
+        try {
+            const config = getHeaderConfig();
+            const {data} = await OrderService.createOrder(order, config);
+            setCartId(data.newCartId);
+            onEmptyCartContext();
+            ToastSuccess('Спасибо за заказ. На указанный email мы пришлём ссылку на оплату.');
+        } catch (error: any) {
+            ToastError('Не удалось отправить заказ. Повторите попытку позже.');
+        } finally {
+            navigate('/orders');
+        }
+    }
 
     const EmptyCart = () => (
         <Flex flexDirection='column' alignItems='center' gap={4} mt={10}>
@@ -65,7 +61,7 @@ export const Cart = () => {
             <Heading fontSize='xx-large' my={2}>В вашей корзине пока пусто</Heading>
             <Text color='gray'>Тут появятся товары, которые вы закажете.</Text>
             <HStack mt={10}>
-                <Link to={`/${currentCategory?.name?.toLowerCase() ?? 'all'}`}>
+                <Link to={`/${slashEscape(currentCategory?.name) ?? ''}`}>
                     <Button colorScheme='blackAlpha' px={10}>
                         В каталог
                     </Button>
@@ -76,18 +72,16 @@ export const Cart = () => {
                     </Button>
                 </Link>
             </HStack>
-
         </Flex>
     );
 
     const OrderList = () => (
         <Flex flex={1} overflow='hidden' height='calc(100vh - 300px)' flexDirection='column'>
-            <List overflow='auto'>
-                {cartItems.map(({product, quantity}) => (
-                    <ListItem key={product.id} pr={2}>
+            <List overflow='auto' spacing={3}>
+                {cart?.items.map(({item, quantity}) => (
+                    <ListItem key={item.id} pr={2}>
                         <HStack spacing={3}>
-                            <Link to={`/${product.category?.name?.toLowerCase()}/${product.id}/${product.title}`}
-                                  target='_blank'
+                            <Link to={`/${slashEscape(item.category?.name)}/${item.id}`}
                                   style={{display: "flex", alignItems: 'center'}}>
                                 <Flex maxH='110px'
                                       maxW='110px'
@@ -99,17 +93,17 @@ export const Cart = () => {
                                         minH='110px'
                                         minW='110px'
                                         objectFit={'contain'}
-                                        src={product.images[0] ?? '/imgs/placeholder-image.jpg'}
+                                        src={item.image[0] ?? '/imgs/placeholder-image.jpg'}
                                     />
                                 </Flex>
                                 <Flex flexGrow={1} flexDirection='column' px={4}>
-                                    <Text fontSize='sm'>{product.title}</Text>
+                                    <Text fontSize='sm'>{item.title}</Text>
                                     <Text fontSize='sm'
-                                          color='gray.500'>{toCurrency(product.price)}</Text>
+                                          color='gray.500'>{toCurrency(item.price)}</Text>
                                 </Flex>
                             </Link>
                             <Spacer/>
-                            <Counter product={product} quantity={quantity}/>
+                            <Counter product={item} quantity={quantity}/>
                         </HStack>
                     </ListItem>
                 ))}
@@ -122,20 +116,19 @@ export const Cart = () => {
 
     return (
         <MainBlockLayout title={'Корзина'}>
-            {cartItems.length > 0 ? (
-                <Flex gap={10} borderTop='1px solid' borderColor='gray.200' pt={2}>
+            {isLoadingCart && cart?.items?.length === 0 && <Loader/>}
+            {cart?.items?.length > 0 && (
+                <Flex gap={10} pt={2}>
                     <OrderList/>
                     <Box flex={1} overflow={"auto"}>
                         <Heading fontSize='x-large' mb={2}>Итого</Heading>
-                        <Text color='gray'>Доставка 15–30 мин. Оплата при получении картой или наличными.</Text>
-                        <TotalCostTable/>
+                        <Text color='gray' borderBottom='1px solid' borderBottomColor='gray.300' pb={2}>Бесплатная доставка 30–60 мин. Оплата при получении картой или наличными.</Text>
+                        <TotalCostTable items={cart.items}/>
                         <Heading fontSize='x-large' mb={4}>Адрес доставки</Heading>
-                        <OrderForm/>
+                        <OrderForm handleFormSubmit={handleFormSubmit}/>
                     </Box>
-                </Flex>
-            ) : (
-                <EmptyCart/>
-            )}
+                </Flex>)}
+            {!isLoadingCart && cart?.items?.length === 0 && <EmptyCart/>}
         </MainBlockLayout>
     );
 };

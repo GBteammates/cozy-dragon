@@ -14,9 +14,8 @@ import {
     Stack,
     Text
 } from "@chakra-ui/react";
-import {Field, Form, Formik} from "formik";
+import {Field, Form, Formik} from 'formik';
 import * as Yup from "yup";
-import {RegExpURL} from "../utilities/RegExpURL";
 
 interface EditCategoryModalProps {
     isOpen: boolean,
@@ -26,7 +25,7 @@ interface EditCategoryModalProps {
 
 type Values = {
     name: string;
-    image: string
+    description: string
 };
 
 const CreateCategoryModal = ({
@@ -38,9 +37,8 @@ const CreateCategoryModal = ({
     const ValidationSchema = Yup.object().shape({
         name: Yup.string()
             .required('Пожалуйста, введите название категории'),
-        image: Yup.string()
-            .matches(RegExpURL, 'Пожалуйста, введите корректный URL')
-            .required('Пожалуйста, добавьте изображение категории')
+        description: Yup.string()
+            .required('Пожалуйста, добавьте описание категории')
     });
 
 
@@ -51,7 +49,7 @@ const CreateCategoryModal = ({
                 <ModalHeader borderBottom='1px solid' borderBottomColor='gray.200'>Создание категории</ModalHeader>
                 <ModalCloseButton/>
                 <Formik
-                    initialValues={{name: '', description: '', image: ''}}
+                    initialValues={{name: '', description: ''}}
                     validationSchema={ValidationSchema}
                     onSubmit={async (values: Values) => {
                         onCreateCategory(values)
@@ -59,7 +57,7 @@ const CreateCategoryModal = ({
                 >
                     {({isValid, dirty}) => (
                         <Form>
-                            <ModalBody my={4}>
+                            <ModalBody>
                                 <Stack spacing={4}>
                                     <FormControl>
                                         <FormLabel htmlFor='name' fontWeight='bold'>Название категории</FormLabel>
@@ -75,11 +73,12 @@ const CreateCategoryModal = ({
                                         </Field>
                                     </FormControl>
                                     <FormControl>
-                                        <FormLabel htmlFor='image' fontWeight='bold'>Изображение категории</FormLabel>
-                                        <Field name="image">
+                                        <FormLabel htmlFor='description' fontWeight='bold'>Описание
+                                            категории</FormLabel>
+                                        <Field name="description">
                                             {({field, meta}: any) => (
                                                 <>
-                                                    <Input name='image' type='string' {...field}/>
+                                                    <Input name='description' type='string' {...field}/>
                                                     {meta.touched && meta.error && (
                                                         <Text color='red.400' fontSize='sm' mt={2}>{meta.error}</Text>
                                                     )}
@@ -99,7 +98,6 @@ const CreateCategoryModal = ({
                         </Form>
                     )}
                 </Formik>
-
             </ModalContent>
         </Modal>
     );

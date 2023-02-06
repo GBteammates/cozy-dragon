@@ -32,7 +32,8 @@ export interface Values {
     price: number;
     description: string;
     categoryId: number;
-    images: string[];
+    image: string[];
+    vendor: string
 }
 
 interface AddEditProductDrawerProps {
@@ -57,15 +58,19 @@ const AddEditProductDrawer = ({
             .min(5, 'Пожалуйста, введите не меньше 5 символов')
             .max(100, 'Пожалуйста, введите не более 100 символов')
             .required('Пожалуйста, заполните обязательное поле'),
-        // images: Yup.mixed()
+        // image: Yup.mixed()
         //     .when('isArray', {
         //         is: Array.isArray,
         //         then: Yup.array().of(Yup.string()),
         //         otherwise: Yup.string(),
         //     }),
+        categoryId: Yup.string()
+            .required('Пожалуйста, выберите категорию'),
         description: Yup.string()
-            .min(5, 'Пожалуйста, введите не меньше 5 символов')
-            .max(600, 'Пожалуйста, введите не более 600 символов')
+            .max(900, 'Пожалуйста, введите не более 900 символов')
+            .required('Пожалуйста, заполните обязательное поле'),
+        vendor: Yup.string()
+            .max(100, 'Пожалуйста, введите не более 100 символов')
             .required('Пожалуйста, заполните обязательное поле'),
         price: Yup.string()
             .required('Пожалуйста, заполните обязательное поле'),
@@ -90,8 +95,9 @@ const AddEditProductDrawer = ({
                         title: product.title ?? '',
                         price: product.price ?? '',
                         description: product.description ?? '',
-                        categoryId: product.category?.id ?? currentCategory.id,
-                        images: product.images ?? ['']
+                        categoryId: product.category?.id ?? currentCategory?.id,
+                        image: product.image ?? [''],
+                        vendor: product.vendor ?? ''
                     }}
                     validationSchema={ValidationSchema}
                     onSubmit={async (
@@ -102,8 +108,9 @@ const AddEditProductDrawer = ({
                             title: values.title,
                             price: values.price,
                             description: values.description,
-                            category: categories[values.categoryId - 1],
-                            images: values.images
+                            category: categories.find(c => c.id == values.categoryId),
+                            image: values.image,
+                            vendor: values.vendor
                         }
                         await onSubmit(result);
                         setSubmitting(false);
@@ -113,13 +120,13 @@ const AddEditProductDrawer = ({
                         <Form style={{height: 'calc(100% - 80px)', display: 'flex', flexDirection: 'column'}}>
                             <DrawerBody flex={1}>
                                 <Stack spacing={6} py={4}>
-                                    {categories.length > 0 && <FormControl>
-                                        <FormLabel htmlFor='categoryId' fontSize='m' color='gray.500'>Категория
+                                    {categories?.length > 0 && <FormControl>
+                                        <FormLabel htmlFor='categoryId' fontSize='m'  color='gray.500'>Категория
                                             товара</FormLabel>
                                         <Field name="categoryId">
                                             {({field, meta}: any) => (
                                                 <>
-                                                    <Select id='categoryId' name='categoryId'
+                                                    <Select id='categoryId' name='categoryId' placeholder='Выберите категорию'
                                                             {...field}>
                                                         {categories.map(category => (
                                                             <option value={category.id}
@@ -153,15 +160,15 @@ const AddEditProductDrawer = ({
                                     <FormControl>
                                         <FormLabel htmlFor='title' fontSize='m' color='gray.500'>Изображения
                                             товара</FormLabel>
-                                        <FieldArray name="images">
+                                        <FieldArray name="image">
                                             {({remove, push}) => (
                                                 <VStack spacing={3}>
-                                                    {values?.images?.length > 0 &&
-                                                        values.images?.map((image, index) => (
+                                                    {values?.image?.length > 0 &&
+                                                        values.image?.map((image, index) => (
                                                             <Box key={index} w='100%'>
                                                                 <Image src={image} maxH='100px'/>
                                                                 <Flex  gap={2} >
-                                                                    <Field name={`images.${index}`}>
+                                                                    <Field name={`image.${index}`}>
                                                                         {({field, meta}: any) => (
                                                                             <Box w='100%'>
                                                                                 <Input type='url' fontSize='sm'
@@ -180,7 +187,7 @@ const AddEditProductDrawer = ({
                                                             </Box>
 
                                                         ))}
-                                                    {values.images.length < 5 && <Button
+                                                    {values.image.length < 5 && <Button
                                                         mt={4}
                                                         onClick={() => push('')}
                                                     >
@@ -213,6 +220,20 @@ const AddEditProductDrawer = ({
                                             {({field, meta}: any) => (
                                                 <>
                                                     <Input type="number"
+                                                           isInvalid={meta.touched ? meta.error : false} {...field} />
+                                                    {meta.touched && meta.error && (
+                                                        <Text color='red.400' fontSize='sm' >{meta.error}</Text>
+                                                    )}
+                                                </>
+                                            )}
+                                        </Field>
+                                    </FormControl>
+                                    <FormControl>
+                                        <FormLabel htmlFor='vendor' fontSize='m'  color='gray.500'>Продавец</FormLabel>
+                                        <Field name="vendor">
+                                            {({field, meta}: any) => (
+                                                <>
+                                                    <Input type="text"
                                                            isInvalid={meta.touched ? meta.error : false} {...field} />
                                                     {meta.touched && meta.error && (
                                                         <Text color='red.400' fontSize='sm'>{meta.error}</Text>

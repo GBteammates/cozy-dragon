@@ -6,14 +6,13 @@ import SignInByEmailForm from "../components/auth/SignInByEmailForm";
 
 interface SignInProps {
     isOpen: boolean,
-    isLoading: boolean,
     onClose: () => void,
     onOpenSignUp: () => void,
     signInHandler: (source: string) => void
-    signInByEmail: (data: ICustomer) => void
+    signInByEmail: (data: Partial<ICustomer>) => void
 }
 
-const SignIn = ({isOpen, isLoading, onClose, onOpenSignUp, signInHandler, signInByEmail}: SignInProps) => {
+const SignIn = ({isOpen, onClose, onOpenSignUp, signInHandler, signInByEmail}: SignInProps) => {
 
     return (
         <Modal isOpen={isOpen} onClose={onClose}>
@@ -22,7 +21,7 @@ const SignIn = ({isOpen, isLoading, onClose, onOpenSignUp, signInHandler, signIn
                 <ModalHeader borderBottom='1px solid' borderBottomColor='gray.200'>Войти</ModalHeader>
                 <ModalCloseButton/>
                 <ModalBody my={4} textAlign='center'>
-                    <SignInByEmailForm signInByEmail={signInByEmail} isLoading={isLoading}/>
+                    <SignInByEmailForm signInByEmail={signInByEmail}/>
                     <Button w='100%' mt={4} mb={8} colorScheme='gray' variant='outline' onClick={() => {
                         onClose();
                         onOpenSignUp()

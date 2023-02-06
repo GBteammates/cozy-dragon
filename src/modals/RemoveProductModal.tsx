@@ -15,7 +15,7 @@ interface RemoveProductModalProps {
     product: IProduct
     isOpen: boolean,
     onClose: () => void,
-    onRemoveProduct: (id: number) => void
+    onRemoveProduct: (id: string) => void
 }
 
 const RemoveProductModal = ({product, isOpen, onClose, onRemoveProduct}: RemoveProductModalProps) => {

@@ -1,15 +1,17 @@
-import {Spinner} from '@chakra-ui/react';
+import {Center, Spinner} from '@chakra-ui/react';
 import React from 'react';
 
 const Loader = () => {
     return (
-        <Spinner
-            thickness='4px'
-            speed='0.65s'
-            emptyColor='gray.200'
-            color='yellow.500'
-            size='xl'
-        />
+        <Center h='50vh'>
+            <Spinner
+                thickness='6px'
+                speed='0.65s'
+                emptyColor='gray.200'
+                color='gray.400'
+                size='xl'
+            />
+        </Center>
     );
 };
 
