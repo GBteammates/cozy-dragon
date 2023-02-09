@@ -47,7 +47,7 @@ export const Cart = () => {
             const {data} = await OrderService.createOrder(order, config);
             setCartId(data.newCartId);
             onEmptyCartContext();
-            ToastSuccess('Спасибо за заказ. На указанный email мы пришлём ссылку на оплату.');
+            ToastSuccess('Спасибо за заказ. Вы можете отслеживать статус заказа в разделе Мои Заказы.');
         } catch (error: any) {
             ToastError('Не удалось отправить заказ. Повторите попытку позже.');
         } finally {
@@ -122,7 +122,7 @@ export const Cart = () => {
                     <OrderList/>
                     <Box flex={1} overflow={"auto"}>
                         <Heading fontSize='x-large' mb={2}>Итого</Heading>
-                        <Text color='gray' borderBottom='1px solid' borderBottomColor='gray.300' pb={2}>Бесплатная доставка 30–60 мин. Оплата при получении картой или наличными.</Text>
+                        <Text color='gray' borderBottom='1px solid' borderBottomColor='gray.300' pb={2}>Бесплатная доставка. Оплата при получении картой или наличными.</Text>
                         <TotalCostTable items={cart.items}/>
                         <Heading fontSize='x-large' mb={4}>Адрес доставки</Heading>
                         <OrderForm handleFormSubmit={handleFormSubmit}/>

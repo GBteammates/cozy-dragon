@@ -96,7 +96,7 @@ const CartSidebar = () => {
             {cart?.items?.length > 0 &&
                 <Box borderTop='1px solid' borderColor='gray.300' pt={3} pr={3} color='gray' fontSize='sm'
                      textAlign='right'>
-                    <Text>Бесплатная доставка 30–60 мин </Text>
+                    <Text>Бесплатная доставка</Text>
                 </Box>}
             <CartLink/>
         </Flex>
