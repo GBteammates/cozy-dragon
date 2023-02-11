@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     Button,
     Flex,
@@ -27,7 +27,6 @@ import LogOut from '../modals/LogOut';
 
 import {
     getCartId,
-    getToken,
     removeCartId,
     removeToken,
     removeUserId,
@@ -310,7 +309,6 @@ export const Header = () => {
             <SignIn isOpen={signInDisclosure.isOpen}
                     onClose={signInDisclosure.onClose}
                     onOpenSignUp={signUpDisclosure.onOpen}
-                    signInHandler={signInBySocial}
                     signInByEmail={signInByEmail}/>
             <SignUp isOpen={signUpDisclosure.isOpen}
                     onClose={signUpDisclosure.onClose}
