@@ -8,6 +8,7 @@ import {
     Input,
     InputGroup,
     InputRightElement,
+    Select,
     SimpleGrid,
     Text,
     useDisclosure
@@ -28,7 +29,6 @@ import {ICategory} from "../../models/ICategory";
 import {MdClose} from 'react-icons/md';
 import { getHeaderConfig } from '../../utilities/getHeaderConfig';
 
-
 const ProductList = () => {
     const [products, setProducts] = useState<IProduct[]>([]);
     const [error, setError] = useState('');
@@ -36,6 +36,7 @@ const ProductList = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [quantity, setQuantity] = useState(0);
     const [searchQuery, setSearchQuery] = useState('');
+    const [sortOrder, setSortOrder] = useState('');
     const limit = 8;
 
     const {isAdmin, isAuth} = useCustomer();
@@ -45,7 +46,7 @@ const ProductList = () => {
 
     useEffect(() => {
         updateList();
-    }, [currentCategory, searchQuery, isAuth]);
+    }, [currentCategory, searchQuery, sortOrder, isAuth]);
 
     useEffect(() => {
         if (isLoading) {
@@ -60,11 +61,11 @@ const ProductList = () => {
                 const config = getHeaderConfig();
                 let res;
                 if (searchQuery) {
-                    res = await ProductService.getProductsBySearchQuery(searchQuery, offset, limit, config)
+                    res = await ProductService.getProductsBySearchQuery(searchQuery, offset, limit, config, sortOrder);
+                } else if (isEmpty(currentCategory)) {
+                    res =  await ProductService.getPaginatedProducts(offset, limit, config, sortOrder);
                 } else {
-                    res = isEmpty(currentCategory)
-                        ? await ProductService.getPaginatedProducts(offset, limit, config)
-                        : await ProductService.getAllProductsByCategory(currentCategory.name, offset, limit, config);
+                    res = await ProductService.getAllProductsByCategory(currentCategory.name, offset, limit, config, sortOrder);
                 }
                 setProducts([...products, ...res.data.items]);
                 setQuantity(res.data.quantity);
@@ -140,6 +141,23 @@ const ProductList = () => {
         }
     }
 
+    const handleSortOrderChange = (e: any) => {
+        setSortOrder(e.target.value);
+    }
+
+    const SortOrderSelect = () => (
+        <Select value={sortOrder}
+                borderRadius='2xl'
+                size='lg'
+                w='320px'
+                color='gray.500'
+                focusBorderColor={'yellow.500'}
+                onChange={handleSortOrderChange}>
+            <option value='asc'>Сначала дешёвые</option>
+            <option value='desc'>Сначала дорогие</option>
+        </Select>
+    )
+
     const memoizedList = useMemo(() => (
         <>
             {products?.map(product => (
@@ -202,14 +220,17 @@ const ProductList = () => {
                         </Button>
                     }
                 </Flex>
-                {!error && <Flex my={6}>
+                {!error && <Flex my={6} alignItems='center' gap={6}>
+                    <SortOrderSelect/>
+
                     <InputGroup size='lg'>
                         <Input
+                            value={searchQuery}
                             pr='160px'
                             type='text'
                             placeholder='Поиск по товарам...'
-                            value={searchQuery}
                             focusBorderColor={'yellow.500'}
+                            borderRadius='2xl'
                             onChange={handleSearchQueryChange}
                         />
                         <InputRightElement width='160px' px={2} justifyContent='flex-end'>
@@ -221,11 +242,6 @@ const ProductList = () => {
                                                 updateList();
                                             }}/>
                             }
-                            <Button size='m' px={4} py={1} colorScheme='blackAlpha' onClick={() => {
-                                onChangeCurrentCategory({} as ICategory)
-                            }}>
-                                Поиск
-                            </Button>
                         </InputRightElement>
                     </InputGroup>
                 </Flex>}
