@@ -1,1 +1,1 @@
-export const rootURL = 'http://cozydragon.online:8080';
+export const rootURL = 'http://localhost:8000';
