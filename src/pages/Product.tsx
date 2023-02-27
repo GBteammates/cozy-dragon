@@ -164,7 +164,7 @@ export const Product = () => {
                     <Flex gap={10} pt={6}>
                         <Flex maxH='600px'
                               maxW='600px'
-                              minW='300px'
+                              minW='500px'
                               w='50%'
                               justifyContent='center'
                               position='relative'
