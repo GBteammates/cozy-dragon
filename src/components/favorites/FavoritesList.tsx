@@ -127,7 +127,7 @@ const FavoritesList = () => {
                 bg='gray.50'
                 overflowY='auto'
             >
-                <SimpleGrid minChildWidth='210px' width='100%' spacing='6'>
+                <SimpleGrid minChildWidth='250px' width='100%' spacing='10'>
                     {isLoading && list?.length === 0 && <SkeletonList amount={8}/>}
                     {memoizedList}
                 </SimpleGrid>
