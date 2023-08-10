@@ -1,5 +1,5 @@
-import React, {ReactNode, useContext, useState} from "react";
-import { ICategory } from "../models/ICategory";
+import React, { ReactNode, useContext, useState } from 'react';
+import { ICategory } from '../models/ICategory';
 
 type CategoryProviderProps = {
     children: ReactNode
@@ -14,7 +14,7 @@ type CategoryContextProps = {
 
 const CategoryContext = React.createContext({} as CategoryContextProps);
 
-export const useCategory = () =>  useContext(CategoryContext);
+export const useCategory = () => useContext(CategoryContext);
 
 export const CategoryProvider = ({children}: CategoryProviderProps) => {
     const [currentCategory, setCurrentCategory] = useState<ICategory>({} as ICategory);

@@ -14,8 +14,10 @@ import ErrorMessage from '../../UI/ErrorMessage';
 import {slashEscape} from "../../utilities/RegExpURL";
 import {getHeaderConfig} from '../../utilities/getHeaderConfig';
 import {useCustomer} from "../../context/CustomerContext";
+import { useTranslation } from 'react-i18next';
 
 const FavoritesList = () => {
+    const {t} = useTranslation();
     const [list, setList] = useState([] as IProduct[]);
     const [favListQuantity, setFavListQuantity] = useState(0);
     const {currentCategory} = useCategory();
@@ -50,9 +52,9 @@ const FavoritesList = () => {
             }
         } catch (e: any) {
             if (list?.length > 0) {
-                ToastError('Не удалось загрузить список избранных товаров');
+                ToastError(t('Failed to load favorites list'));
             } else {
-                setError('Не удалось загрузить список избранных товаров. Повторите попытку позже.');
+                setError(t('Failed to load list of favorite items. Please try again later.'));
             }
         } finally {
             setIsLoading(false);
@@ -97,12 +99,16 @@ const FavoritesList = () => {
     const EmptyList = () => (
         <Flex alignItems='center' justifyContent='center' gap={4} flexDirection='column' mt={10}>
             <Icon fontSize='140px' color='gray.400' as={IoIosHeartEmpty}/>
-            <Heading fontSize='xx-large' my={2}>В избранном ничего нет</Heading>
-            <Text color='gray' textAlign='center'>Здесь пока ничего нет, но вы можете
-                <br/>добавить товар в избранное, нажав на <Icon as={MdFavorite}/></Text>
+            <Heading fontSize='xx-large' my={2}>
+                {t('Favorites list is empty')}
+            </Heading>
+            <Text color='gray' textAlign='center'>
+                {t('There is nothing here yet, but you can add the item to your favorites by clicking on')}
+                <Icon as={MdFavorite} ml='2'/>
+            </Text>
             <Link to={`/${slashEscape(currentCategory?.name) ?? ''}`}>
                 <Button colorScheme='yellow' px={10} mt={6}>
-                    В каталог
+                    {t('Go to catalog')}
                 </Button>
             </Link>
         </Flex>

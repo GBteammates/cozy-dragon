@@ -11,6 +11,7 @@ import {
     Text
 } from "@chakra-ui/react";
 import {ICategory} from "../models/ICategory";
+import { useTranslation } from 'react-i18next';
 
 interface RemoveCategoryModalProps {
     category: ICategory
@@ -19,21 +20,31 @@ interface RemoveCategoryModalProps {
     onRemoveCategory: (id: number) => void
 }
 
-const RemoveCategoryModal = ({category, isOpen, onClose, onRemoveCategory}: RemoveCategoryModalProps) => {
+const RemoveCategoryModal = (props: RemoveCategoryModalProps) => {
+    const {category, isOpen, onClose, onRemoveCategory} = props;
+    const {t} = useTranslation();
+
     return (
         <Modal isOpen={isOpen} onClose={onClose}>
             <ModalOverlay style={{backgroundColor: 'RGBA(0, 0, 0, 0.16)'}}/>
             <ModalContent borderRadius='2xl'>
-                <ModalHeader borderBottom='1px solid' borderBottomColor='gray.200'>Удалить категорию</ModalHeader>
+                <ModalHeader borderBottom='1px solid' borderBottomColor='gray.200'>
+                    {t('Delete category')}
+                </ModalHeader>
                 <ModalCloseButton/>
                 <ModalBody my={4}>
-                    <Text>Вы уверены, что хотите удалить категорию <b>{category.name}</b></Text>
+                    <Text>
+                        {t('Are you sure you want to delete the category')}
+                        <b> {category.name}</b>?
+                    </Text>
                 </ModalBody>
                 <ModalFooter>
                     <Button variant='ghost' mr={3} onClick={onClose}>
-                        Отмена
+                        {t('Cancel')}
                     </Button>
-                    <Button onClick={() => onRemoveCategory(category.id)}>Удалить</Button>
+                    <Button onClick={() => onRemoveCategory(category.id)}>
+                        {t('Delete')}
+                    </Button>
                 </ModalFooter>
             </ModalContent>
         </Modal>

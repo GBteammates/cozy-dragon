@@ -42,7 +42,12 @@ export const ProductItem: FC<ProductItemProps> = ({product}) => {
             {isAuth && <Box position='absolute'
                             right={2}
                             top={2}>
-                <FavoriteSwitcher isFav={isFav} customerId={customer.id} productId={id} handleSetIsFav={handleSetIsFav}/>
+                <FavoriteSwitcher
+                    isFav={isFav}
+                    customerId={customer.id}
+                    productId={id}
+                    handleSetIsFav={handleSetIsFav}
+                />
             </Box>}
             <Box py={4}>
                 <Link
@@ -55,7 +60,7 @@ export const ProductItem: FC<ProductItemProps> = ({product}) => {
                             maxW='100%'
                             objectFit={'contain'}
                             src={image[0]}
-                            fallbackSrc={'/imgs/placeholder-image.jpg'}
+                            fallbackSrc={'/assets/images/placeholder-image.jpg'}
                         />}
                     </Flex>
                     <Stack height='130px' alignItems='start' justifyContent='center' px={4}>

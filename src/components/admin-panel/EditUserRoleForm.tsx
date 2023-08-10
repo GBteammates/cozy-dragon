@@ -3,19 +3,12 @@ import {Field, Form, Formik, FormikHelpers} from "formik";
 import {Button, Flex, FormControl, FormLabel, Input, Select, Stack, Text} from "@chakra-ui/react";
 import * as Yup from "yup";
 import {IRole} from "../../models/IRole";
+import { useTranslation } from 'react-i18next';
 
 export interface Values {
     email: string,
     roleName: string
 }
-
-const ValidationSchema = Yup.object().shape({
-    email: Yup.string()
-        .email('Пожалуйста, введите корректный Email')
-        .required('Пожалуйста, введите ваш E-mail'),
-    roleName: Yup.string()
-        .required('Пожалуйста, введите выберите роль'),
-});
 
 interface EditUserRoleFormProps {
     roles: IRole[],
@@ -23,7 +16,18 @@ interface EditUserRoleFormProps {
     onClose: () => void
 }
 
-export const EditUserRoleForm = ({roles, onEditUserRole, onClose}: EditUserRoleFormProps) => {
+export const EditUserRoleForm = (props: EditUserRoleFormProps) => {
+    const {roles, onEditUserRole, onClose} = props;
+    const {t} = useTranslation();
+
+    const ValidationSchema = Yup.object().shape({
+        email: Yup.string()
+            .email(t('Please enter a valid email'))
+            .required(t('Please enter email')),
+        roleName: Yup.string()
+            .required(t('Please enter select user role')),
+    });
+
     return (
         <Formik
             initialValues={{
@@ -47,38 +51,43 @@ export const EditUserRoleForm = ({roles, onEditUserRole, onClose}: EditUserRoleF
                 <Form>
                     <Stack spacing={4} py={2}>
                         <FormControl>
-                            <FormLabel htmlFor='email' fontSize='m' color='gray.500'>Email
-                                пользователя</FormLabel>
+                            <FormLabel htmlFor='email' fontSize='m' color='gray.500'>
+                                {t('User email')}
+                            </FormLabel>
                             <Field name="email">
                                 {({field, meta}: any) => (
                                     <>
-                                        <Input type="email"
+                                        <Input type="email" placeholder={t('Enter email')}
                                                isInvalid={meta.touched ? meta.error : false} {...field} />
                                         {meta.touched && meta.error && (
-                                            <Text color='red.400' mt={2}
-                                                  fontSize='sm'>{meta.error}</Text>
+                                            <Text color='red.400' mt={2} fontSize='sm'>
+                                                {meta.error}
+                                            </Text>
                                         )}
                                     </>
                                 )}
                             </Field>
                         </FormControl>
                         {roles?.length > 0 && <FormControl>
-                            <FormLabel htmlFor='roleName' fontSize='m' color='gray.500'>Роль
-                                пользователя</FormLabel>
+                            <FormLabel htmlFor='roleName' fontSize='m' color='gray.500'>
+                                {t('User role')}
+                            </FormLabel>
                             <Field name="roleName">
                                 {({field, meta}: any) => (
                                     <>
                                         <Select id='roleName' name='roleName'
-                                                placeholder={'Выберите роль пользователя'}
+                                                placeholder={t('Select user role')}
                                                 {...field}>
                                             {roles.map((role) => (
-                                                <option value={role.name}
-                                                        key={role.id}>{role.name}</option>
+                                                <option value={role.name} key={role.id}>
+                                                    {role.name}
+                                                </option>
                                             ))}
                                         </Select>
                                         {meta.touched && meta.error && (
-                                            <Text color='red.400' mt={2}
-                                                  fontSize='sm'>{meta.error}</Text>
+                                            <Text color='red.400' mt={2} fontSize='sm'>
+                                                {meta.error}
+                                            </Text>
                                         )}
                                     </>
                                 )}
@@ -87,15 +96,17 @@ export const EditUserRoleForm = ({roles, onEditUserRole, onClose}: EditUserRoleF
                         }
                     </Stack>
                     <Flex justifyContent={"flex-end"} mt={6}>
-                        <Button variant='ghost' mr={3} onClick={onClose}>Отмена</Button>
+                        <Button variant='ghost' mr={3} onClick={onClose}>
+                            {t('Cancel')}
+                        </Button>
                         <Button
                             type='submit'
                             colorScheme='yellow'
-                            loadingText='Сохранение...'
+                            loadingText={t('Saving...')}
                             isLoading={isSubmitting}
                             isDisabled={!isValid || !dirty}
                         >
-                            Сохранить
+                            {t('Save')}
                         </Button>
                     </Flex>
                 </Form>

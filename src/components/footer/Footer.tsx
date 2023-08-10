@@ -1,8 +1,4 @@
-import {
-    Box,
-    Text,
-    Flex,
-} from '@chakra-ui/react';
+import { Box, Flex, Text, } from '@chakra-ui/react';
 
 export default function Footer() {
     const currentYear = new Date().getFullYear();
@@ -29,7 +25,7 @@ export default function Footer() {
                         ml: 8,
                     }}>
                     <Text fontSize={'sm'} textAlign={'center'} color='gray'>
-                        © {currentYear} Cozy Dragon. All rights reserved
+                        © {currentYear} cozy dragon.
                     </Text>
                 </Flex>
             </Box>

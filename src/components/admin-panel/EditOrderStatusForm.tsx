@@ -1,22 +1,16 @@
 import React from 'react';
-import {Field, Form, Formik, FormikHelpers} from "formik";
-import {Button, Flex, FormControl, FormLabel, Input, Select, Stack, Text} from "@chakra-ui/react";
+import { Field, Form, Formik, FormikHelpers } from "formik";
+import { Button, Flex, FormControl, FormLabel, Input, Select, Stack, Text } from "@chakra-ui/react";
 import * as Yup from "yup";
-import {IRole} from "../../models/IRole";
-import {ORDER_STATUS} from "../../models/IOrder";
-import {useCustomer} from "../../context/CustomerContext";
+import { IRole } from "../../models/IRole";
+import { ORDER_STATUS } from "../../models/IOrder";
+import { useCustomer } from "../../context/CustomerContext";
+import { useTranslation } from 'react-i18next';
 
 export interface Values {
     orderId: string,
     status: string
 }
-
-const ValidationSchema = Yup.object().shape({
-    orderId: Yup.string()
-        .required('Пожалуйста, введите ID заказа'),
-    status: Yup.string()
-        .required('Пожалуйста, выберите статус заказа')
-});
 
 interface EditOrderStatusFormProps {
     roles: IRole[],
@@ -24,8 +18,17 @@ interface EditOrderStatusFormProps {
     onClose: () => void
 }
 
-export const EditOrderStatusForm = ({roles, onEditOrderStatus, onClose}: EditOrderStatusFormProps) => {
+export const EditOrderStatusForm = (props: EditOrderStatusFormProps) => {
+    const {onEditOrderStatus, onClose} = props;
+    const {t} = useTranslation();
     const {customer} = useCustomer();
+
+    const ValidationSchema = Yup.object().shape({
+        orderId: Yup.string()
+            .required(t('Please enter an order ID')),
+        status: Yup.string()
+            .required(t('Please select an order status'))
+    });
 
     return (
         <Formik
@@ -55,11 +58,13 @@ export const EditOrderStatusForm = ({roles, onEditOrderStatus, onClose}: EditOrd
                 <Form>
                     <Stack spacing={4} py={2}>
                         <FormControl>
-                            <FormLabel htmlFor='orderId' fontSize='m' color='gray.500'>ID заказа</FormLabel>
+                            <FormLabel htmlFor='orderId' fontSize='m' color='gray.500'>
+                                {t('Order ID')}
+                            </FormLabel>
                             <Field name="orderId">
                                 {({field, meta}: any) => (
                                     <>
-                                        <Input type="text"
+                                        <Input type="text" placeholder={t('Enter an order ID')}
                                                isInvalid={meta.touched ? meta.error : false} {...field} />
                                         {meta.touched && meta.error && (
                                             <Text color='red.400' mt={2}
@@ -70,16 +75,21 @@ export const EditOrderStatusForm = ({roles, onEditOrderStatus, onClose}: EditOrd
                             </Field>
                         </FormControl>
                         <FormControl>
-                            <FormLabel htmlFor='status' fontSize='m' color='gray.500'>Статус заказа</FormLabel>
+                            <FormLabel htmlFor='status' fontSize='m' color='gray.500'>
+                                {t('Order status')}
+                            </FormLabel>
                             <Field name="status">
                                 {({field, meta}: any) => (
                                     <>
-                                        <Select id='status' name='status'
-                                                placeholder='Выберите новый статус заказа'
-                                                {...field}>
+                                        <Select id='status'
+                                                name='status'
+                                                placeholder={t('Select a new order status')}
+                                                {...field}
+                                        >
                                             {Object.values(ORDER_STATUS).map((value, index) => (
-                                                <option value={value.status}
-                                                        key={index}>{value.translation}</option>
+                                                <option value={value.status} key={index}>
+                                                    {t(value.status)}
+                                                </option>
                                             ))}
                                         </Select>
                                         {meta.touched && meta.error && (
@@ -92,15 +102,17 @@ export const EditOrderStatusForm = ({roles, onEditOrderStatus, onClose}: EditOrd
                         </FormControl>
                     </Stack>
                     <Flex justifyContent={"flex-end"} mt={6}>
-                        <Button variant='ghost' mr={3} onClick={onClose}>Отмена</Button>
+                        <Button variant='ghost' mr={3} onClick={onClose}>
+                            {t('Cancel')}
+                        </Button>
                         <Button
                             type='submit'
                             colorScheme='yellow'
-                            loadingText='Сохранение...'
+                            loadingText={t('Saving...')}
                             isLoading={isSubmitting}
                             isDisabled={!isValid || !dirty}
                         >
-                            Сохранить
+                            {t('Save')}
                         </Button>
                     </Flex>
                 </Form>

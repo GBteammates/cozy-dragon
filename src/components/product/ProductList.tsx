@@ -1,35 +1,23 @@
-import {
-    Box,
-    Button,
-    Center,
-    Flex,
-    Heading,
-    IconButton,
-    Input,
-    InputGroup,
-    InputRightElement,
-    Select,
-    SimpleGrid,
-    Text,
-    useDisclosure
-} from '@chakra-ui/react';
-import React, {useEffect, useMemo, useState} from 'react';
-import {ProductItem} from "./ProductItem";
-import {IProduct} from '../../models/IProduct';
-import ErrorMessage from "../../UI/ErrorMessage";
-import {useCategory} from "../../context/CategoryContext";
-import {GrAdd} from "react-icons/gr";
-import AddEditProductDrawer from '../../modals/AddEditProductDrawer';
-import {isEmpty} from "../../utilities/isEmpty";
-import {ToastError, ToastSuccess} from '../../utilities/error-handling';
+import { Box, Button, Center, Flex, Heading, SimpleGrid, Text, useDisclosure } from '@chakra-ui/react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { ProductItem } from './ProductItem';
+import { IProduct } from '../../models/IProduct';
+import ErrorMessage from '../../UI/ErrorMessage';
+import { useCategory } from '../../context/CategoryContext';
+import { GrAdd } from 'react-icons/gr';
+import AddEditProductDrawer from '../../modals/AddEditProduct/AddEditProductDrawer';
+import { isEmpty } from '../../utilities/isEmpty';
+import { ToastError, ToastSuccess } from '../../utilities/error-handling';
 import SkeletonList from '../../UI/SkeletonList';
-import ProductService from "../../api/ProductService";
-import {useCustomer} from "../../context/CustomerContext";
-import {ICategory} from "../../models/ICategory";
-import {MdClose} from 'react-icons/md';
+import ProductService from '../../api/ProductService';
+import { useCustomer } from '../../context/CustomerContext';
 import { getHeaderConfig } from '../../utilities/getHeaderConfig';
+import { useTranslation } from 'react-i18next';
+import ProductListFilters from './ProductListFilters';
+import { useDebounce } from '../../utilities/useDebounce';
 
 const ProductList = () => {
+    const {t} = useTranslation();
     const [products, setProducts] = useState<IProduct[]>([]);
     const [error, setError] = useState('');
     const [offset, setOffset] = useState(0);
@@ -43,18 +31,16 @@ const ProductList = () => {
     const {currentCategory, onChangeCurrentCategory, categories} = useCategory();
     const {isOpen, onOpen, onClose} = useDisclosure();
 
+    useEffect(() => {
+        setSearchQuery('');
+        updateList();
+    }, [currentCategory]);
 
     useEffect(() => {
         updateList();
-    }, [currentCategory, searchQuery, sortOrder, isAuth]);
+    }, [sortOrder, isAuth]);
 
-    useEffect(() => {
-        if (isLoading) {
-            fetchProducts();
-        }
-    }, [isLoading]);
-
-    const fetchProducts = async () => {
+    const fetchProducts = useCallback(async () => {
         setError('');
         if (products.length <= quantity) {
             try {
@@ -63,7 +49,7 @@ const ProductList = () => {
                 if (searchQuery) {
                     res = await ProductService.getProductsBySearchQuery(searchQuery, offset, limit, config, sortOrder);
                 } else if (isEmpty(currentCategory)) {
-                    res =  await ProductService.getPaginatedProducts(offset, limit, config, sortOrder);
+                    res = await ProductService.getPaginatedProducts(offset, limit, config, sortOrder);
                 } else {
                     res = await ProductService.getAllProductsByCategory(currentCategory.name, offset, limit, config, sortOrder);
                 }
@@ -72,9 +58,9 @@ const ProductList = () => {
                 setOffset(prevState => prevState + limit);
             } catch (e: any) {
                 if (products?.length > 0) {
-                    ToastError('Не удалось загрузить список товаров');
+                    ToastError(t('Failed to load item list'));
                 } else {
-                    setError('Не удалось загрузить список товаров. Повторите попытку позже.');
+                    setError(t('Failed to load item list. Please try again later.'));
                 }
             } finally {
                 setIsLoading(false);
@@ -82,7 +68,13 @@ const ProductList = () => {
         } else {
             setIsLoading(false);
         }
-    };
+    }, [currentCategory, offset, products, quantity, searchQuery, sortOrder, t]);
+
+    useEffect(() => {
+        if (isLoading) {
+            fetchProducts();
+        }
+    }, [fetchProducts, isLoading]);
 
     const updateList = () => {
         window.scroll({
@@ -110,21 +102,21 @@ const ProductList = () => {
         }
     }
 
-    const onChangeCategory = (id: number) => {
-        const selectedCategory = categories.find(c => c.id == id);
+    const onChangeCategory = useCallback((id: number) => {
+        const selectedCategory = categories.find(c => Number(c.id) === Number(id));
         if (selectedCategory) {
             onChangeCurrentCategory(selectedCategory);
         }
-    }
+    }, [categories, onChangeCurrentCategory]);
 
-    const onAddNewProduct = async (values: IProduct) => {
+    const onAddNewProduct = useCallback(async (values: IProduct) => {
         const result = {
-            "title": values.title,
-            "description": values.description,
-            "price": +values.price,
-            "category": values.category?.id,
-            "image": values.image,
-            "vendor": values.vendor
+            'title': values.title,
+            'description': values.description,
+            'price': +values.price,
+            'category': values.category?.id,
+            'image': values.image,
+            'vendor': values.vendor
         };
         try {
             const config = getHeaderConfig();
@@ -134,29 +126,23 @@ const ProductList = () => {
             } else {
                 updateList();
             }
-            ToastSuccess('Товар был успешно добавлен');
+            ToastSuccess(t('The item was added successfully'));
             onClose();
         } catch (e: any) {
             ToastError(e?.message);
         }
-    }
+    }, [currentCategory.id, onChangeCategory, onClose, t]);
 
-    const handleSortOrderChange = (e: any) => {
-        setSortOrder(e.target.value);
-    }
+    const handleSortOrderChange = useCallback((value: string) => {
+        setSortOrder(value);
+    }, []);
 
-    const SortOrderSelect = () => (
-        <Select value={sortOrder}
-                borderRadius='2xl'
-                size='lg'
-                w='320px'
-                color='gray.500'
-                focusBorderColor={'yellow.500'}
-                onChange={handleSortOrderChange}>
-            <option value='asc'>Сначала дешёвые</option>
-            <option value='desc'>Сначала дорогие</option>
-        </Select>
-    )
+    const debouncedSearchQuery = useDebounce(updateList, 600);
+
+    const handleSearchQueryChange = useCallback((value: string) => {
+        setSearchQuery(value);
+        debouncedSearchQuery();
+    }, [debouncedSearchQuery]);
 
     const memoizedList = useMemo(() => (
         <>
@@ -166,17 +152,10 @@ const ProductList = () => {
         </>
     ), [products]);
 
-    const handleSearchQueryChange = (e: any) => {
-        setSearchQuery(e.target.value)
-        if (e.target.value.length > 0) {
-            onChangeCurrentCategory({} as ICategory)
-        }
-    }
-
     const NoContent = () => {
         return isLoading ? <SkeletonList amount={8}/> : (
             <Center h='50vh'>
-                <Text color='gray'>В данной категории нет товаров</Text>
+                <Text color='gray'>{t('There are no items in this category')}</Text>
             </Center>
         )
     }
@@ -203,7 +182,9 @@ const ProductList = () => {
         >
             <>
                 <Flex justifyContent='space-between' gap={5}>
-                    <Heading mb={5}>{currentCategory?.name?.toUpperCase() ?? 'Все товары'.toUpperCase()}</Heading>
+                    <Heading mb={5}>
+                        {currentCategory?.name?.toUpperCase() ?? t('All goods').toUpperCase()}
+                    </Heading>
                     {isAdmin &&
                         <Button
                             position='fixed'
@@ -216,42 +197,30 @@ const ProductList = () => {
                             colorScheme='yellow'
                             fontWeight='normal'
                             onClick={onOpen}>
-                            Добавить новый товар
+                            {t('Add new item')}
                         </Button>
                     }
                 </Flex>
-                {!error && <Flex my={6} alignItems='center' gap={6}>
-                    <SortOrderSelect/>
-
-                    <InputGroup size='lg'>
-                        <Input
-                            value={searchQuery}
-                            pr='160px'
-                            type='text'
-                            placeholder='Поиск по товарам...'
-                            focusBorderColor={'yellow.500'}
-                            borderRadius='2xl'
-                            onChange={handleSearchQueryChange}
-                        />
-                        <InputRightElement width='160px' px={2} justifyContent='flex-end'>
-                            {searchQuery.length > 0 &&
-                                <IconButton size='lg' variant='link'
-                                            aria-label='Clear' icon={<MdClose/>}
-                                            onClick={() => {
-                                                setSearchQuery('');
-                                                updateList();
-                                            }}/>
-                            }
-                        </InputRightElement>
-                    </InputGroup>
-                </Flex>}
+                {!error && (
+                    <ProductListFilters
+                        sortOrder={sortOrder}
+                        searchQuery={searchQuery}
+                        handleSortOrderChange={handleSortOrderChange}
+                        handleSearchQueryChange={handleSearchQueryChange}
+                    />
+                )}
                 <SimpleGrid minChildWidth='250px' width='100%' spacing='10' placeItems='center'>
                     {!error && products.length === 0 && <NoContent/>}
                     {memoizedList}
                 </SimpleGrid>
                 {error && getErrorMessage()}
             </>
-            <AddEditProductDrawer isEdit={false} isOpen={isOpen} onClose={onClose} onSubmit={onAddNewProduct}/>
+            <AddEditProductDrawer
+                isEdit={false}
+                isOpen={isOpen}
+                onClose={onClose}
+                onSubmit={onAddNewProduct}
+            />
         </Box>
     );
 };

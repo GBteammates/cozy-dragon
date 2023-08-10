@@ -15,7 +15,7 @@ const CartButton = () => {
                 </Button>
                 :
                 <IconButton
-                    aria-label='Корзина'
+                    aria-label='My bag'
                     fontSize='x-large'
                     icon={<BsBagFill/>}
                 />

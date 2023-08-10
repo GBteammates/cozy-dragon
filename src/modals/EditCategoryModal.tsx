@@ -14,9 +14,10 @@ import {
     Stack,
     Text
 } from "@chakra-ui/react";
-import {ICategory} from "../models/ICategory";
-import {Field, Form, Formik} from "formik";
+import { ICategory } from "../models/ICategory";
+import { Field, Form, Formik } from "formik";
 import * as Yup from "yup";
+import { useTranslation } from 'react-i18next';
 
 interface EditCategoryModalProps {
     category: ICategory,
@@ -30,26 +31,29 @@ type Values = {
     description: string;
 };
 
-const EditCategoryModal = ({
-                               category,
-                               isOpen,
-                               onClose,
-                               onEditCategory
-                           }: EditCategoryModalProps) => {
+const EditCategoryModal = (props: EditCategoryModalProps) => {
+    const {
+        category,
+        isOpen,
+        onClose,
+        onEditCategory
+    } = props;
+    const {t} = useTranslation();
 
     const ValidationSchema = Yup.object().shape({
         name: Yup.string()
-            .required('Пожалуйста, введите название категории'),
+            .required(t('Please enter a category name')),
         description: Yup.string()
-            .required('Пожалуйста, добавьте описание категории')
+            .required(t('Please add a category description'))
     });
 
     return (
         <Modal isOpen={isOpen} onClose={onClose}>
             <ModalOverlay style={{backgroundColor: 'RGBA(0, 0, 0, 0.16)'}}/>
             <ModalContent borderRadius='2xl'>
-                <ModalHeader borderBottom='1px solid' borderBottomColor='gray.200'>Редактирование
-                    категории</ModalHeader>
+                <ModalHeader borderBottom='1px solid' borderBottomColor='gray.200'>
+                    {t('Edit category')}
+                </ModalHeader>
                 <ModalCloseButton/>
 
                 <Formik
@@ -64,7 +68,9 @@ const EditCategoryModal = ({
                             <ModalBody my={4}>
                                 <Stack spacing={4}>
                                     <FormControl>
-                                        <FormLabel htmlFor='name' fontWeight='bold'>Название категории</FormLabel>
+                                        <FormLabel htmlFor='name' color='gray.500'>
+                                            {t('Category name')}
+                                        </FormLabel>
                                         <Field name="name">
                                             {({field, meta}: any) => (
                                                 <>
@@ -77,7 +83,9 @@ const EditCategoryModal = ({
                                         </Field>
                                     </FormControl>
                                     <FormControl>
-                                        <FormLabel htmlFor='description' fontWeight='bold'>Описание категории</FormLabel>
+                                        <FormLabel htmlFor='description' color='gray.500'>
+                                            {t('Category description')}
+                                        </FormLabel>
                                         <Field name="description">
                                             {({field, meta}: any) => (
                                                 <>
@@ -93,15 +101,15 @@ const EditCategoryModal = ({
                             </ModalBody>
                             <ModalFooter>
                                 <Button variant='ghost' mr={3} onClick={onClose}>
-                                    Отмена
+                                    {t('Cancel')}
                                 </Button>
-                                <Button isDisabled={!isValid || !dirty}
-                                        type='submit'>Сохранить</Button>
+                                <Button isDisabled={!isValid || !dirty} type='submit'>
+                                    {t('Save')}
+                                </Button>
                             </ModalFooter>
                         </Form>
                     )}
                 </Formik>
-
             </ModalContent>
         </Modal>
     );

@@ -1,8 +1,9 @@
 import React from 'react';
-import {Field, Form, Formik, FormikHelpers} from "formik";
-import {Button, FormControl, Input, Stack, Text} from "@chakra-ui/react";
+import { Field, Form, Formik, FormikHelpers } from "formik";
+import { Button, FormControl, Input, Stack, Text } from "@chakra-ui/react";
 import * as Yup from "yup";
-import {ICustomer} from "../../models/ICustomer";
+import { ICustomer } from "../../models/ICustomer";
+import { useTranslation } from 'react-i18next';
 
 interface SignInByEmailFormProps {
     signInByEmail: (data: Partial<ICustomer>) => void,
@@ -14,14 +15,15 @@ export interface SignInByEmailFormValues {
 }
 
 const SignInByEmailForm = ({signInByEmail}: SignInByEmailFormProps) => {
+    const {t} = useTranslation();
     const ValidationSchema = Yup.object().shape({
         email: Yup.string()
-            .email('Пожалуйста, введите корректный  email')
-            .required('Пожалуйста, введите ваш E-mail'),
+            .email(t('Please enter a valid email'))
+            .required(t('Please enter your email')),
         password: Yup.string()
-            .min(8, 'Пароль должен содержать минимум 8 символов')
-            .max(16, 'Пароль может содержать максимум 16 символов')
-            .required('Пожалуйста, введите ваш пароль')
+            .min(8, t('Password must contain at least 8 characters'))
+            .max(16, t('Password can contain a maximum of 16 characters'))
+            .required(t('Please enter a password'))
     });
 
     return (
@@ -47,7 +49,7 @@ const SignInByEmailForm = ({signInByEmail}: SignInByEmailFormProps) => {
                                 {({field, meta}: any) => (
                                     <>
                                         <Input type='email'
-                                               placeholder='E-mail'
+                                               placeholder={t('Enter email')}
                                                mb={2}
                                                isInvalid={meta.touched ? meta.error : false} {...field} />
                                         {meta.touched && meta.error && (
@@ -62,7 +64,7 @@ const SignInByEmailForm = ({signInByEmail}: SignInByEmailFormProps) => {
                                 {({field, meta}: any) => (
                                     <>
                                         <Input type='password'
-                                               placeholder='Пароль'
+                                               placeholder={t('Enter password')}
                                                mb={2}
                                                isInvalid={meta.touched ? meta.error : false} {...field} />
                                         {meta.touched && meta.error && (
@@ -76,7 +78,7 @@ const SignInByEmailForm = ({signInByEmail}: SignInByEmailFormProps) => {
                                 colorScheme='yellow'
                                 isLoading={isSubmitting}
                                 isDisabled={!isValid || !dirty}>
-                            Войти
+                            {t('Log in')}
                         </Button>
                     </Stack>
                 </Form>

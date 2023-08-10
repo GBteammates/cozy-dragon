@@ -10,7 +10,7 @@ interface SaveIconProps {
 export const SaveIcon = ({onSave, isDisabled}: SaveIconProps) => {
     return (
         <IconButton icon={<MdDone/>}
-                    aria-label='Сохранить'
+                    aria-label='Save'
                     colorScheme='yellow'
                     border='1px solid'
                     borderColor='gray.300'
