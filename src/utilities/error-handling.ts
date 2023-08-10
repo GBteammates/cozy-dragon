@@ -13,7 +13,7 @@ export const ToastSuccess = (message: string) => {
 export const ToastError = (error: string) => {
     const { toast } = createStandaloneToast();
     return toast({
-        title: 'Ошибка',
+        title: 'Error',
         description: error,
         status: 'error',
         duration: 6000,

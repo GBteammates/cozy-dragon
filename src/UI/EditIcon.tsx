@@ -10,7 +10,7 @@ interface EditIconProps {
 export const EditIcon = ({onEdit, isDisabled}: EditIconProps) => {
     return (
         <IconButton icon={<MdModeEdit/>}
-                    aria-label='Редактировать'
+                    aria-label='Edit'
                     backgroundColor='white'
                     color='gray.500'
                     border='1px solid'

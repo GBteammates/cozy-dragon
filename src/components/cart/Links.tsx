@@ -11,7 +11,7 @@ export const Links = [
     },
     {
         title: 'Favorites',
-        icon: <IconButton aria-label='Избранное' fontSize='x-large' icon={<MdFavorite/>}/>,
+        icon: <IconButton aria-label='Favorites' fontSize='x-large' icon={<MdFavorite/>}/>,
         path: 'favorites'
     }
 ];

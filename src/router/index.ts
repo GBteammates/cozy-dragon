@@ -14,12 +14,12 @@ export enum RouteNames {
 }
 
 export const routes: IRoute[] = [
-    { path: RouteNames.HOME, component: pages.Home },
-    { path: RouteNames.ALL_PRODUCTS, component: pages.Home },
-    { path: RouteNames.CATEGORY, component: pages.Home },
-    { path: RouteNames.PRODUCT, component: pages.Product },
-    { path: RouteNames.FAVOURITES, component: pages.Favorites },
-    { path: RouteNames.CART, component: pages.Cart },
-    { path: RouteNames.ORDERS, component: pages.OrderList },
-    { path: RouteNames.ORDER, component: pages.Order }
+    { path: RouteNames.HOME, component: pages.HomePage },
+    { path: RouteNames.ALL_PRODUCTS, component: pages.HomePage },
+    { path: RouteNames.CATEGORY, component: pages.HomePage },
+    { path: RouteNames.PRODUCT, component: pages.ProductPage },
+    { path: RouteNames.FAVOURITES, component: pages.FavoriteListPage },
+    { path: RouteNames.CART, component: pages.CartPage },
+    { path: RouteNames.ORDERS, component: pages.OrderListPage },
+    { path: RouteNames.ORDER, component: pages.OrderPage }
 ]

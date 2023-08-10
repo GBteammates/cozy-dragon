@@ -38,7 +38,7 @@ export const FavoriteSwitcher = ({isFav, productId, customerId, handleSetIsFav}:
 
     return (
         <IconButton icon={isFav ? <FaHeart/> : <FaRegHeart/>}
-                    aria-label='Редактировать'
+                    aria-label='Favorite'
                     borderRadius='50%'
                     backgroundColor='white'
                     color={isFav ? 'red' : 'gray.400'}

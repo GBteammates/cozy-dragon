@@ -10,6 +10,7 @@ import {
     Text
 } from "@chakra-ui/react";
 import {IProduct} from "../models/IProduct";
+import { useTranslation } from 'react-i18next';
 
 interface RemoveProductModalProps {
     product: IProduct
@@ -18,21 +19,27 @@ interface RemoveProductModalProps {
     onRemoveProduct: (id: string) => void
 }
 
-const RemoveProductModal = ({product, isOpen, onClose, onRemoveProduct}: RemoveProductModalProps) => {
+const RemoveProductModal = (props: RemoveProductModalProps) => {
+    const {product, isOpen, onClose, onRemoveProduct} = props;
+    const {t} = useTranslation();
     return (
         <Modal isOpen={isOpen} onClose={onClose}>
             <ModalOverlay style={{backgroundColor: 'RGBA(0, 0, 0, 0.16)'}}/>
             <ModalContent borderRadius='2xl'>
-                <ModalHeader borderBottom='1px solid' borderBottomColor='gray.200'>Удалить товар</ModalHeader>
+                <ModalHeader borderBottom='1px solid' borderBottomColor='gray.200'>
+                    {t('Delete the item')}
+                </ModalHeader>
                 <ModalCloseButton/>
                 <ModalBody my={4}>
-                    <Text>Вы уверены, что хотите удалить товар <b>{product.title}</b></Text>
+                    <Text>{t('Are you sure you want to delete the item')}<b>{product.title}</b></Text>
                 </ModalBody>
                 <ModalFooter>
                     <Button variant='ghost' mr={3} onClick={onClose}>
-                        Отмена
+                        {t('Cancel')}
                     </Button>
-                    <Button onClick={() => onRemoveProduct(product.id)}>Удалить</Button>
+                    <Button onClick={() => onRemoveProduct(product.id)}>
+                        {t('Delete')}
+                    </Button>
                 </ModalFooter>
             </ModalContent>
         </Modal>

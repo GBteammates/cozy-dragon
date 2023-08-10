@@ -1,6 +1,6 @@
-import {Box, IconButton, Image} from '@chakra-ui/react';
+import { Box, IconButton, Image } from '@chakra-ui/react';
 import React from 'react';
-import {BiLeftArrowAlt, BiRightArrowAlt} from 'react-icons/bi';
+import { MdOutlineArrowBackIosNew, MdOutlineArrowForwardIos } from 'react-icons/md';
 import Slider from 'react-slick';
 
 interface CarouselProps {
@@ -29,36 +29,34 @@ const Carousel = ({images}: CarouselProps) => {
             width='full'
             overflow='hidden'>
             <IconButton
-                aria-label="left-arrow"
-                colorScheme="gray"
-                borderRadius="full"
-                border='1px solid'
-                borderColor='gray.200'
-                position="absolute"
+                aria-label='left-arrow'
+                color='white'
+                boxShadow={'0 4px 12px #8e8f935e'}
+                borderRadius='full'
+                position='absolute'
                 size='lg'
-                left='10px'
+                left='8px'
                 top='50%'
                 transform={'translate(0%, -50%)'}
                 zIndex={2}
-                hidden={images.length <=1}
+                hidden={images.length <= 1}
                 onClick={() => slider?.slickPrev()}>
-                <BiLeftArrowAlt/>
+                <MdOutlineArrowBackIosNew color='black'/>
             </IconButton>
             <IconButton
-                aria-label="right-arrow"
-                colorScheme="gray"
-                borderRadius="full"
-                border='1px solid'
-                borderColor='gray.200'
-                position="absolute"
+                aria-label='right-arrow'
+                color='white'
+                boxShadow={'0 4px 12px #8e8f935e'}
+                borderRadius='full'
+                position='absolute'
                 size='lg'
-                right='10px'
+                right='8px'
                 top='50%'
                 transform={'translate(0%, -50%)'}
                 zIndex={2}
-                hidden={images.length <=1}
+                hidden={images.length <= 1}
                 onClick={() => slider?.slickNext()}>
-                <BiRightArrowAlt/>
+                <MdOutlineArrowForwardIos color='black'/>
             </IconButton>
             <Slider {...settings} ref={(slider: any) => setSlider(slider)}>
                 {images.map((url, index) => (
@@ -70,7 +68,7 @@ const Carousel = ({images}: CarouselProps) => {
                         minW='500px'
                         objectFit={'contain'}
                         src={url}
-                        fallbackSrc={'/imgs/placeholder-image.jpg'}
+                        fallbackSrc={'/assets/images/placeholder-image.jpg'}
                     />
                 ))}
             </Slider>

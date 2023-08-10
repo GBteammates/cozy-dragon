@@ -1,5 +1,5 @@
 export type IRole = {
     id: string,
-    name: string,
+    name: 'Admin' | 'Customer',
     rules: string[]
 }

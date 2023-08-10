@@ -17,10 +17,11 @@ import {
     Stack,
     Text
 } from "@chakra-ui/react";
-import {Field, Form, Formik} from "formik";
+import { Field, Form, Formik } from "formik";
 import * as Yup from "yup";
-import {IAddress, ICustomer} from "../models/ICustomer";
+import { IAddress, ICustomer } from "../models/ICustomer";
 import { BsFillPersonFill } from 'react-icons/bs';
+import { useTranslation } from 'react-i18next';
 
 interface EditCategoryModalProps {
     customer: ICustomer,
@@ -39,30 +40,57 @@ type Values = {
     street?: string | undefined;
 };
 
-const EditProfileModal = ({
-                              customer,
-                              isOpen,
-                              onClose,
-                              onEditProfile
-                          }: EditCategoryModalProps) => {
+const EditProfileModal = (props: EditCategoryModalProps) => {
+    const {
+        customer,
+        isOpen,
+        onClose,
+        onEditProfile
+    } = props;
+    const {t} = useTranslation();
     const ValidationSchema = Yup.object().shape({
         firstname: Yup.string()
-            .max(50, 'Пожалуйста, введите не более 50 символов')
-            .required('Пожалуйста, введите ваше имя'),
+            .max(50, t('Please enter no more than 50 characters'))
+            .required(t('Please enter your firstname')),
         lastname: Yup.string()
-            .max(50, 'Пожалуйста, введите не более 50 символов'),
+            .max(50, t('Please enter no more than 50 characters'))
+            .required(t('Please enter your lastname')),
         zipcode: Yup.string()
-            .max(10, 'Пожалуйста, введите не более 10 символов'),
+            .max(10, t('Please enter no more than 10 characters')),
         email: Yup.string()
-            .email('Пожалуйста, введите корректный  email')
-            .required('Пожалуйста, введите ваш E-mail'),
+            .email(t('Please enter a valid email'))
+            .required(t('Please enter your email')),
     });
+
+
+    const formControl = (name: string, label: string, isDisabled?: boolean) => (
+        <FormControl>
+            <FormLabel htmlFor={name} color='gray.500'>
+                {t(label)}
+            </FormLabel>
+            <Field name={name}>
+                {({field, meta}: any) => (
+                    <>
+                        <Input name={name} type='string' isDisabled={isDisabled} {...field}/>
+                        {meta.touched && meta.error && (
+                            <Text color='red.400' fontSize='sm' mt={2}>
+                                {meta.error}
+                            </Text>
+                        )}
+                    </>
+                )}
+            </Field>
+        </FormControl>
+    );
+
 
     return (
         <Modal isOpen={isOpen} onClose={onClose}>
             <ModalOverlay style={{backgroundColor: 'RGBA(0, 0, 0, 0.4)'}}/>
             <ModalContent borderRadius='2xl' minW='500px' maxW='600px'>
-                <ModalHeader>Ваши данные</ModalHeader>
+                <ModalHeader borderBottom='1px solid' borderBottomColor='gray.200'>
+                    {t('Your data')}
+                </ModalHeader>
                 <ModalCloseButton/>
                 <Formik
                     initialValues={{
@@ -88,116 +116,27 @@ const EditProfileModal = ({
                                         <Icon as={BsFillPersonFill} fontSize='160px'/>
                                     </Center>
                                     <Flex gap={3}>
-                                        <FormControl>
-                                            <FormLabel htmlFor='firstname' fontWeight='bold'>Ваше имя</FormLabel>
-                                            <Field name="firstname">
-                                                {({field, meta}: any) => (
-                                                    <>
-                                                        <Input name='firstname' type='string' {...field}/>
-                                                        {meta.touched && meta.error && (
-                                                            <Text color='red.400' fontSize='sm' mt={2}>{meta.error}</Text>
-                                                        )}
-                                                    </>
-                                                )}
-                                            </Field>
-                                        </FormControl>
-                                        <FormControl>
-                                            <FormLabel htmlFor='lastname' fontWeight='bold'>Ваша фамилия</FormLabel>
-                                            <Field name="lastname">
-                                                {({field, meta}: any) => (
-                                                    <>
-                                                        <Input name='lastname' type='string' {...field}/>
-                                                        {meta.touched && meta.error && (
-                                                            <Text color='red.400' fontSize='sm' mt={2}>{meta.error}</Text>
-                                                        )}
-                                                    </>
-                                                )}
-                                            </Field>
-                                        </FormControl>
+                                        {formControl('firstname', 'Your name')}
+                                        {formControl('lastname', 'Your last name')}
                                     </Flex>
                                     <Flex gap={3}>
-                                        <FormControl >
-                                            <FormLabel htmlFor='zipcode' fontWeight='bold'>Индекс</FormLabel>
-                                            <Field name="zipcode">
-                                                {({field, meta}: any) => (
-                                                    <>
-                                                        <Input name='zipcode' type='string' {...field}/>
-                                                        {meta.touched && meta.error && (
-                                                            <Text color='red.400' fontSize='sm' mt={2}>{meta.error}</Text>
-                                                        )}
-                                                    </>
-                                                )}
-                                            </Field>
-                                        </FormControl>
-                                        <FormControl >
-                                            <FormLabel htmlFor='country' fontWeight='bold'>Страна</FormLabel>
-                                            <Field name="country">
-                                                {({field, meta}: any) => (
-                                                    <>
-                                                        <Input name='country' type='string' {...field}/>
-                                                        {meta.touched && meta.error && (
-                                                            <Text color='red.400' fontSize='sm' mt={2}>{meta.error}</Text>
-                                                        )}
-                                                    </>
-                                                )}
-                                            </Field>
-                                        </FormControl>
+                                        {formControl('zipcode', 'Zip code')}
+                                        {formControl('country', 'Country')}
                                     </Flex>
                                     <Flex gap={3}>
-                                        <FormControl >
-                                            <FormLabel htmlFor='city' fontWeight='bold'>Город</FormLabel>
-                                            <Field name="city">
-                                                {({field, meta}: any) => (
-                                                    <>
-                                                        <Input name='city' type='string' {...field}/>
-                                                        {meta.touched && meta.error && (
-                                                            <Text color='red.400' fontSize='sm' mt={2}>{meta.error}</Text>
-                                                        )}
-                                                    </>
-                                                )}
-                                            </Field>
-                                        </FormControl>
-                                        <FormControl >
-                                            <FormLabel htmlFor='street' fontWeight='bold'>Улица, дом, квартира</FormLabel>
-                                            <Field name="street">
-                                                {({field, meta}: any) => (
-                                                    <>
-                                                        <Input name='street' type='string' {...field}/>
-                                                        {meta.touched && meta.error && (
-                                                            <Text color='red.400' fontSize='sm' mt={2}>{meta.error}</Text>
-                                                        )}
-                                                    </>
-                                                )}
-                                            </Field>
-                                        </FormControl>
+                                        {formControl('city', 'City')}
+                                        {formControl('street', 'Street, house, flat')}
                                     </Flex>
-
-                                    <FormControl>
-                                        <FormLabel htmlFor='email' fontWeight='bold'>Email</FormLabel>
-                                        <Field name='email'>
-                                            {({field, meta}: any) => (
-                                                <>
-                                                    <Input type='email'
-                                                           placeholder='E-mail'
-                                                           mb={2}
-                                                           isInvalid={meta.touched ? meta.error : false}
-                                                           isDisabled
-                                                           {...field}/>
-                                                    {meta.touched && meta.error && (
-                                                        <Text color='red.400' fontSize='md'>{meta.error}</Text>
-                                                    )}
-                                                </>
-                                            )}
-                                        </Field>
-                                    </FormControl>
+                                    {formControl('email', 'Email', true)}
                                 </Stack>
                             </ModalBody>
                             <ModalFooter>
                                 <Button variant='ghost' mr={3} onClick={onClose}>
-                                    Отмена
+                                    {t('Cancel')}
                                 </Button>
-                                <Button isDisabled={!isValid || !dirty}
-                                        type='submit'>Сохранить</Button>
+                                <Button isDisabled={!isValid || !dirty} type='submit'>
+                                    {t('Save')}
+                                </Button>
                             </ModalFooter>
                         </Form>
                     )}
